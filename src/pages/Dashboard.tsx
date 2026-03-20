@@ -31,7 +31,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <AppSidebar activeTab={sidebarTab} onTabChange={setSidebarTab} />
+      <AppSidebar activeTab={sidebarTab} onTabChange={handleSidebarChange} />
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
