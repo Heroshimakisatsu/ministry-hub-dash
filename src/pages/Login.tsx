@@ -15,7 +15,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex">
       {/* Left — form */}
-      <div className="w-full max-w-md flex flex-col justify-center px-10 py-12 bg-card relative z-10">
+      <div className="w-full max-w-md flex flex-col justify-center px-10 py-12 bg-card/60 dark:bg-card/40 backdrop-blur-2xl relative z-10 border-r border-border/30">
         <div className="flex items-center gap-3 mb-10">
           <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
             <Church className="h-5 w-5 text-primary-foreground" />
