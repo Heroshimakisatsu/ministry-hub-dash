@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Church, Eye, EyeOff } from "lucide-react";
-import loginBg from "@/assets/login-bg.jpg";
+import welcomeBg from "@/assets/welcome-bg.jpg";
 
 export default function Login() {
   const navigate = useNavigate();
