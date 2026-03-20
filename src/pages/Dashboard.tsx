@@ -84,7 +84,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <MinistryAlerts />
+      <MinistryAlerts onNavigate={(tab) => setActiveTab(tab)} />
     </div>
   );
 }
