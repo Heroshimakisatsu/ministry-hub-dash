@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Church, Eye, EyeOff } from "lucide-react";
-import loginBg from "@/assets/login-bg.jpg";
+import welcomeBg from "@/assets/welcome-bg.jpg";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex">
       {/* Left — form */}
-      <div className="w-full max-w-md flex flex-col justify-center px-10 py-12 bg-card relative z-10">
+      <div className="w-full max-w-md flex flex-col justify-center px-10 py-12 bg-card/60 dark:bg-card/40 backdrop-blur-2xl relative z-10 border-r border-border/30">
         <div className="flex items-center gap-3 mb-10">
           <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
             <Church className="h-5 w-5 text-primary-foreground" />
@@ -96,11 +96,12 @@ export default function Login() {
       {/* Right — image */}
       <div className="flex-1 hidden lg:block relative">
         <img
-          src={loginBg}
+          src={welcomeBg}
           alt="Modern church interior"
-          className="absolute inset-0 w-full h-full object-cover blur-sm brightness-50"
+          className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-primary/20" />
+        <div className="absolute inset-0 bg-white/40 dark:bg-black/60" />
+        <div className="absolute inset-0 bg-primary/10" />
         <div className="absolute bottom-10 left-10 right-10 text-primary-foreground">
           <h3 className="text-2xl font-bold mb-2">Empower Your Ministry</h3>
           <p className="text-sm opacity-80">
