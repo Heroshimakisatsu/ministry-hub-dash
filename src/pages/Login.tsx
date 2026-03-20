@@ -96,11 +96,12 @@ export default function Login() {
       {/* Right — image */}
       <div className="flex-1 hidden lg:block relative">
         <img
-          src={loginBg}
+          src={welcomeBg}
           alt="Modern church interior"
-          className="absolute inset-0 w-full h-full object-cover blur-sm brightness-50"
+          className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-primary/20" />
+        <div className="absolute inset-0 bg-white/40 dark:bg-black/60" />
+        <div className="absolute inset-0 bg-primary/10" />
         <div className="absolute bottom-10 left-10 right-10 text-primary-foreground">
           <h3 className="text-2xl font-bold mb-2">Empower Your Ministry</h3>
           <p className="text-sm opacity-80">
