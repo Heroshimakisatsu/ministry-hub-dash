@@ -11,9 +11,23 @@ import { SubscriptionPlans } from "@/components/SubscriptionPlans";
 const tabs = ["Overview", "Members", "Tithes", "Events", "Subscriptions"] as const;
 type Tab = (typeof tabs)[number];
 
+const sidebarToTab: Record<string, Tab> = {
+  members: "Members",
+  tithes: "Tithes",
+  events: "Events",
+  analytics: "Overview",
+  settings: "Subscriptions",
+};
+
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
-  const [sidebarTab, setSidebarTab] = useState("members");
+  const [sidebarTab, setSidebarTab] = useState("analytics");
+
+  const handleSidebarChange = (id: string) => {
+    setSidebarTab(id);
+    const mapped = sidebarToTab[id];
+    if (mapped) setActiveTab(mapped);
+  };
 
   return (
     <div className="flex h-screen overflow-hidden">
