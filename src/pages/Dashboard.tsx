@@ -7,11 +7,16 @@ import { MinistryAlerts } from "@/components/MinistryAlerts";
 import { MemberList } from "@/components/MemberList";
 import { TithesTable } from "@/components/TithesTable";
 import { SubscriptionPlans } from "@/components/SubscriptionPlans";
+import { AdminQuickActions } from "@/components/AdminQuickActions";
+import { MemberDashboard } from "@/components/MemberDashboard";
 
-const tabs = ["Overview", "Members", "Tithes", "Events", "Subscriptions"] as const;
-type Tab = (typeof tabs)[number];
+const adminTabs = ["Overview", "Members", "Tithes", "Events", "Subscriptions"] as const;
+const memberTabs = ["Home", "Sermons", "Giving", "Events"] as const;
 
-const sidebarToTab: Record<string, Tab> = {
+type AdminTab = (typeof adminTabs)[number];
+type MemberTab = (typeof memberTabs)[number];
+
+const sidebarToAdminTab: Record<string, AdminTab> = {
   members: "Members",
   tithes: "Tithes",
   events: "Events",
@@ -20,22 +25,32 @@ const sidebarToTab: Record<string, Tab> = {
 };
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState<Tab>("Overview");
+  const [role, setRole] = useState<"admin" | "member">("admin");
+  const [adminTab, setAdminTab] = useState<AdminTab>("Overview");
+  const [memberTab, setMemberTab] = useState<MemberTab>("Home");
   const [sidebarTab, setSidebarTab] = useState("analytics");
 
   const handleSidebarChange = (id: string) => {
     setSidebarTab(id);
-    const mapped = sidebarToTab[id];
-    if (mapped) setActiveTab(mapped);
+    if (role === "admin") {
+      const mapped = sidebarToAdminTab[id];
+      if (mapped) setAdminTab(mapped);
+    }
+  };
+
+  const tabs = role === "admin" ? adminTabs : memberTabs;
+  const activeTab = role === "admin" ? adminTab : memberTab;
+  const setActiveTab = (t: string) => {
+    if (role === "admin") setAdminTab(t as AdminTab);
+    else setMemberTab(t as MemberTab);
   };
 
   return (
     <div className="flex h-screen overflow-hidden">
       <AppSidebar activeTab={sidebarTab} onTabChange={handleSidebarChange} />
 
-      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        <DashboardHeader />
+        <DashboardHeader role={role} onRoleChange={setRole} />
 
         {/* Tabs */}
         <div className="border-b bg-card px-6">
@@ -58,33 +73,59 @@ export default function Dashboard() {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {activeTab === "Overview" && (
+          {role === "admin" ? (
             <>
-              <StatCards />
-              <div className="flex gap-4">
-                <GivingChart />
-                <FundAllocationChart />
-              </div>
-              <MemberList />
+              {adminTab === "Overview" && (
+                <>
+                  <StatCards />
+                  <AdminQuickActions />
+                  <div className="flex gap-4">
+                    <GivingChart />
+                    <FundAllocationChart />
+                  </div>
+                  <MemberList />
+                </>
+              )}
+              {adminTab === "Members" && <MemberList />}
+              {adminTab === "Tithes" && (
+                <>
+                  <StatCards />
+                  <TithesTable />
+                </>
+              )}
+              {adminTab === "Events" && (
+                <div className="card-surface p-10 text-center">
+                  <p className="text-muted-foreground text-sm">Event Calendar — Coming Soon</p>
+                </div>
+              )}
+              {adminTab === "Subscriptions" && <SubscriptionPlans />}
+            </>
+          ) : (
+            <>
+              {memberTab === "Home" && <MemberDashboard />}
+              {memberTab === "Sermons" && (
+                <div className="card-surface p-10 text-center">
+                  <p className="text-muted-foreground text-sm">Sermon Library — Coming Soon</p>
+                </div>
+              )}
+              {memberTab === "Giving" && (
+                <div className="card-surface p-10 text-center">
+                  <p className="text-muted-foreground text-sm">Giving History — Coming Soon</p>
+                </div>
+              )}
+              {memberTab === "Events" && (
+                <div className="card-surface p-10 text-center">
+                  <p className="text-muted-foreground text-sm">Event Calendar — Coming Soon</p>
+                </div>
+              )}
             </>
           )}
-          {activeTab === "Members" && <MemberList />}
-          {activeTab === "Tithes" && (
-            <>
-              <StatCards />
-              <TithesTable />
-            </>
-          )}
-          {activeTab === "Events" && (
-            <div className="card-surface p-10 text-center">
-              <p className="text-muted-foreground text-sm">Event Calendar — Coming Soon</p>
-            </div>
-          )}
-          {activeTab === "Subscriptions" && <SubscriptionPlans />}
         </div>
       </div>
 
-      <MinistryAlerts onNavigate={(tab) => setActiveTab(tab)} />
+      {role === "admin" && (
+        <MinistryAlerts onNavigate={(tab) => setAdminTab(tab as AdminTab)} />
+      )}
     </div>
   );
 }
