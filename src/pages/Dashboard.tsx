@@ -4,7 +4,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { StatCards } from "@/components/StatCards";
 import { GivingChart, FundAllocationChart } from "@/components/Charts";
 import { MinistryAlerts } from "@/components/MinistryAlerts";
-import { MemberList } from "@/components/MemberList";
+import { MemberManagement } from "@/components/members/MemberManagement";
 import { TithesTable } from "@/components/TithesTable";
 import { SubscriptionPlans } from "@/components/SubscriptionPlans";
 import { AdminQuickActions } from "@/components/AdminQuickActions";
