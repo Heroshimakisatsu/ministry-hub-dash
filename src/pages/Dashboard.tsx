@@ -83,10 +83,10 @@ export default function Dashboard() {
                     <GivingChart />
                     <FundAllocationChart />
                   </div>
-                  <MemberList />
+                  <MemberManagement />
                 </>
               )}
-              {adminTab === "Members" && <MemberList />}
+              {adminTab === "Members" && <MemberManagement />}
               {adminTab === "Tithes" && (
                 <>
                   <StatCards />
