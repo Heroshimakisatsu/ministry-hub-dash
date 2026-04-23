@@ -1,10 +1,11 @@
-import { UserPlus, Users, HandCoins, Send, Clock } from "lucide-react";
+import { UserPlus, Users, HandCoins, Send, Clock, UserCheck } from "lucide-react";
 
 const quickActions = [
-  { icon: UserPlus, label: "Register Member", color: "bg-primary/10 text-primary" },
-  { icon: Users, label: "Register Visitor", color: "bg-emerald-500/10 text-emerald-500" },
-  { icon: HandCoins, label: "Record Offering", color: "bg-amber-500/10 text-amber-500" },
-  { icon: Send, label: "Send Broadcast", color: "bg-sky-500/10 text-sky-500" },
+  { icon: UserCheck, label: "Record Attendance", color: "bg-purple-500/10 text-purple-500", id: "record-attendance" },
+  { icon: HandCoins, label: "Record Finance", color: "bg-amber-500/10 text-amber-500", id: "record-offering" },
+  { icon: Users, label: "Register Visitor", color: "bg-emerald-500/10 text-emerald-500", id: "register-visitor" },
+  { icon: UserPlus, label: "Register Member", color: "bg-primary/10 text-primary", id: "register-member" },
+  { icon: Send, label: "Send Broadcast", color: "bg-sky-500/10 text-sky-500", id: "send-broadcast" },
 ];
 
 const recentActivity = [
@@ -15,17 +16,22 @@ const recentActivity = [
   { text: "Sunday Service attendance: 342", time: "Yesterday", dot: "bg-muted-foreground" },
 ];
 
-export function AdminQuickActions() {
+interface AdminQuickActionsProps {
+  onActionClick?: (actionId: string) => void;
+}
+
+export function AdminQuickActions({ onActionClick }: AdminQuickActionsProps) {
   return (
     <div className="grid lg:grid-cols-2 gap-4">
       {/* Quick Actions */}
       <div className="card-surface p-5">
         <h3 className="text-sm font-semibold mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-wrap gap-3">
           {quickActions.map((action) => (
             <button
               key={action.label}
-              className="flex items-center gap-3 p-4 rounded-xl border hover:bg-accent/50 transition-colors text-left"
+              onClick={() => onActionClick?.(action.id)}
+              className="flex items-center gap-3 p-4 rounded-xl border hover:bg-accent/50 transition-colors text-left flex-[1_0_calc(50%-6px)] min-w-[140px]"
             >
               <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${action.color}`}>
                 <action.icon className="h-5 w-5" />

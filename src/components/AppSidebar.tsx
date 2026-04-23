@@ -1,10 +1,20 @@
 import {
-  Users,
-  Heart,
-  CalendarDays,
-  BarChart3,
   Settings,
   Church,
+  Users,
+  LayoutDashboard,
+  Building2,
+  CalendarDays,
+  BookOpen,
+  Heart,
+  DollarSign,
+  Target,
+  CreditCard,
+  Megaphone,
+  Package,
+  Shield,
+  BarChart3,
+  GitBranch,
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -12,10 +22,30 @@ const navGroups = [
   {
     label: "MINISTRY",
     items: [
+      { icon: LayoutDashboard, label: "Overview", id: "overview" },
       { icon: Users, label: "Member Directory", id: "members" },
-      { icon: Heart, label: "Tithes & Giving", id: "tithes" },
-      { icon: CalendarDays, label: "Event Calendar", id: "events" },
-      { icon: BarChart3, label: "Growth Analytics", id: "analytics" },
+      { icon: Building2, label: "Departments", id: "departments" },
+      { icon: CalendarDays, label: "Events & Calendar", id: "events" },
+      { icon: BookOpen, label: "Church Records", id: "church-records" },
+      { icon: Heart, label: "Welfare & Counseling", id: "welfare" },
+    ],
+  },
+  {
+    label: "FINANCE",
+    items: [
+      { icon: DollarSign, label: "Finance & Offering", id: "tithes" },
+      { icon: Target, label: "Projects & Fundraising", id: "fundraising" },
+      { icon: CreditCard, label: "Online Giving", id: "online-giving" },
+    ],
+  },
+  {
+    label: "OPERATIONS",
+    items: [
+      { icon: Megaphone, label: "Communications", id: "communications" },
+      { icon: Package, label: "Asset & Inventory", id: "assets" },
+      { icon: Shield, label: "Access Control", id: "access" },
+      { icon: BarChart3, label: "Reports & Analytics", id: "analytics" },
+      { icon: GitBranch, label: "Multi-Branch", id: "multi-branch" },
     ],
   },
   {
@@ -44,27 +74,27 @@ export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 space-y-6 mt-2">
+      <nav className="flex-1 px-3 space-y-4 mt-2 overflow-y-auto">
         {navGroups.map((group) => (
           <div key={group.label}>
-            <p className="text-[11px] font-semibold text-muted-foreground tracking-wider px-3 mb-2">
+            <p className="font-semibold text-muted-foreground tracking-wider px-3 mb-2 text-[11px]">
               {group.label}
             </p>
             <div className="space-y-0.5">
-              {group.items.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => onTabChange(item.id)}
-                  className={
-                    activeTab === item.id
-                      ? "sidebar-nav-item-active w-full"
-                      : "sidebar-nav-item w-full"
-                  }
-                >
-                  <item.icon className="h-4 w-4 shrink-0" />
-                  <span>{item.label}</span>
-                </button>
-              ))}
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => onTabChange(item.id)}
+                    className={`${isActive ? "sidebar-nav-item-active" : "sidebar-nav-item"} w-full`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}

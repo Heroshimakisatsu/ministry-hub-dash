@@ -1,15 +1,38 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Church, Eye, EyeOff } from "lucide-react";
+import { Church, Eye, EyeOff, Shield } from "lucide-react";
 import welcomeBg from "@/assets/welcome-bg.jpg";
+import { initialMembers } from "@/data/members";
 
 export default function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("pastor.marcus@faithflow.com");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/dashboard");
+    
+    // Get members from localStorage or use initial members
+    const storedMembers = JSON.parse(localStorage.getItem("members") || "[]");
+    const allMembers = storedMembers.length > 0 ? storedMembers : initialMembers;
+    
+    // Find member by email to determine role
+    const member = allMembers.find(m => m.email === email);
+    
+    if (member) {
+      // Store user session
+      localStorage.setItem("currentUser", JSON.stringify(member));
+      
+      // Route based on role
+      if (member.role === "admin") {
+        navigate("/dashboard");
+      } else {
+        navigate("/member");
+      }
+    } else {
+      // Default to member portal if not found
+      navigate("/member");
+    }
   };
 
   return (
@@ -36,7 +59,8 @@ export default function Login() {
             <label className="text-xs font-medium text-muted-foreground">Email</label>
             <input
               type="email"
-              defaultValue="pastor.marcus@faithflow.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="mt-1 w-full h-10 rounded-xl border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -87,10 +111,27 @@ export default function Login() {
 
         <p className="text-xs text-muted-foreground text-center mt-6">
           New to FaithFlow?{" "}
-          <button onClick={() => navigate("/onboarding")} className="text-primary font-medium hover:underline">
-            Set up your church
+          <button onClick={() => navigate("/member-signup")} className="text-primary font-medium hover:underline">
+            Sign up as Member
           </button>
         </p>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-card px-3 text-xs text-muted-foreground">or</span>
+          </div>
+        </div>
+
+        <button
+          onClick={() => navigate("/admin-signup")}
+          className="w-full h-10 rounded-xl border border-primary/20 text-sm font-medium hover:bg-primary/10 transition-colors flex items-center justify-center gap-2"
+        >
+          <Shield className="h-4 w-4 text-primary" />
+          Sign up as Admin
+        </button>
       </div>
 
       {/* Right — image */}
@@ -103,8 +144,8 @@ export default function Login() {
         <div className="absolute inset-0 bg-white/40 dark:bg-black/60" />
         <div className="absolute inset-0 bg-primary/10" />
         <div className="absolute bottom-10 left-10 right-10 text-primary-foreground">
-          <h3 className="text-2xl font-bold mb-2">Empower Your Ministry</h3>
-          <p className="text-sm opacity-80">
+          <h3 className="text-2xl font-bold mb-2" style={{ color: '#F5F5DC' }}>Empower Your Ministry</h3>
+          <p className="text-sm opacity-80" style={{ color: '#F5F5DC' }}>
             Manage members, track giving, plan events, and grow your congregation — all in one place.
           </p>
         </div>

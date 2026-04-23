@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Plus, Download, Receipt, PiggyBank, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
+import { getGivingHistory } from "@/data/sharedData";
 
 interface Transaction {
   id: string;
@@ -40,6 +41,33 @@ const memberTithes = [
   { name: "Grace Dube", total: 2700, months: 4, lastPaid: "Apr 2026" },
 ];
 
+// Individual tithe records with dates for filtering
+const individualTithes = [
+  { id: "1", member: "Sarah Johnson", amount: 900, date: "Apr 6, 2026" },
+  { id: "2", member: "Sarah Johnson", amount: 900, date: "Mar 30, 2026" },
+  { id: "3", member: "Sarah Johnson", amount: 900, date: "Mar 2, 2026" },
+  { id: "4", member: "Sarah Johnson", amount: 900, date: "Feb 2, 2026" },
+  { id: "5", member: "David Kim", amount: 600, date: "Apr 6, 2026" },
+  { id: "6", member: "David Kim", amount: 600, date: "Mar 30, 2026" },
+  { id: "7", member: "David Kim", amount: 600, date: "Mar 2, 2026" },
+  { id: "8", member: "David Kim", amount: 600, date: "Feb 2, 2026" },
+  { id: "9", member: "James Brown", amount: 1050, date: "Mar 30, 2026" },
+  { id: "10", member: "James Brown", amount: 1050, date: "Mar 2, 2026" },
+  { id: "11", member: "James Brown", amount: 1050, date: "Feb 2, 2026" },
+  { id: "12", member: "James Brown", amount: 1050, date: "Jan 2, 2026" },
+  { id: "13", member: "Robert Wilson", amount: 600, date: "Apr 6, 2026" },
+  { id: "14", member: "Robert Wilson", amount: 600, date: "Mar 30, 2026" },
+  { id: "15", member: "Robert Wilson", amount: 600, date: "Mar 2, 2026" },
+  { id: "16", member: "John Moyo", amount: 1275, date: "Apr 6, 2026" },
+  { id: "17", member: "John Moyo", amount: 1275, date: "Mar 30, 2026" },
+  { id: "18", member: "John Moyo", amount: 1275, date: "Mar 2, 2026" },
+  { id: "19", member: "John Moyo", amount: 1275, date: "Feb 2, 2026" },
+  { id: "20", member: "Grace Dube", amount: 675, date: "Apr 6, 2026" },
+  { id: "21", member: "Grace Dube", amount: 675, date: "Mar 30, 2026" },
+  { id: "22", member: "Grace Dube", amount: 675, date: "Mar 2, 2026" },
+  { id: "23", member: "Grace Dube", amount: 675, date: "Feb 2, 2026" },
+];
+
 const fundCategories = [
   { name: "General Fund", target: 15000, raised: 12400, color: "bg-primary" },
   { name: "Building Fund", target: 50000, raised: 32500, color: "bg-emerald-500" },
@@ -59,15 +87,112 @@ const monthlyData = [
 
 export function FinanceOffering() {
   const [txFilter, setTxFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState<"all" | "date" | "week" | "month">("all");
+  const [selectedDate, setSelectedDate] = useState("");
   const [showRecordDialog, setShowRecordDialog] = useState(false);
   const [recordType, setRecordType] = useState<"income" | "expense">("income");
 
-  const totalIncome = transactions.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
+  // Merge shared giving history with existing transactions
+  const sharedGivingHistory = getGivingHistory();
+  const mergedTransactions = [
+    ...transactions,
+    ...sharedGivingHistory.map((record: any) => ({
+      id: record.id,
+      date: record.date,
+      type: "income" as const,
+      category: record.type,
+      description: `${record.type} - Online Giving`,
+      amount: record.amount,
+      member: record.memberId,
+      method: record.method,
+    })),
+  ];
+
+  const totalIncome = mergedTransactions.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
   const totalExpenses = transactions.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
   const netBalance = totalIncome - totalExpenses;
-  const totalTithes = transactions.filter((t) => t.category === "Tithe").reduce((s, t) => s + t.amount, 0);
+  const totalTithes = mergedTransactions.filter((t) => t.category === "Tithe").reduce((s, t) => s + t.amount, 0);
 
   const fmt = (n: number) => `$${n.toLocaleString()}`;
+
+  // Filter transactions based on date filter
+  const getFilteredTransactions = () => {
+    if (dateFilter === "all") return mergedTransactions;
+    
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    return mergedTransactions.filter((t) => {
+      const txDate = new Date(t.date);
+      
+      if (dateFilter === "date" && selectedDate) {
+        const filterDate = new Date(selectedDate);
+        return txDate.toDateString() === filterDate.toDateString();
+      }
+      
+      if (dateFilter === "week") {
+        const weekAgo = new Date(today);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return txDate >= weekAgo;
+      }
+      
+      if (dateFilter === "month") {
+        const monthAgo = new Date(today);
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        return txDate >= monthAgo;
+      }
+      
+      return true;
+    });
+  };
+
+  const filteredTransactions = getFilteredTransactions();
+
+  // Filter individual tithes based on date filter
+  const getFilteredTithes = () => {
+    // Merge individual tithes with shared giving history (only tithes)
+    const mergedTithes = [
+      ...individualTithes,
+      ...sharedGivingHistory
+        .filter((record: any) => record.type === "Tithe")
+        .map((record: any) => ({
+          id: record.id,
+          member: record.memberId,
+          amount: record.amount,
+          date: record.date,
+        })),
+    ];
+
+    if (dateFilter === "all") return mergedTithes;
+    
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    return mergedTithes.filter((t) => {
+      const txDate = new Date(t.date);
+      
+      if (dateFilter === "date" && selectedDate) {
+        const filterDate = new Date(selectedDate);
+        return txDate.toDateString() === filterDate.toDateString();
+      }
+      
+      if (dateFilter === "week") {
+        const weekAgo = new Date(today);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return txDate >= weekAgo;
+      }
+      
+      if (dateFilter === "month") {
+        const monthAgo = new Date(today);
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        return txDate >= monthAgo;
+      }
+      
+      return true;
+    });
+  };
+
+  const filteredTithes = getFilteredTithes();
 
   return (
     <div className="space-y-4">
@@ -144,27 +269,52 @@ export function FinanceOffering() {
             <h3 className="text-sm font-semibold">Member Tithe Records (YTD)</h3>
             <p className="text-xs text-muted-foreground mt-0.5">Individual tithe contribution tracking</p>
           </div>
-          <Button variant="outline" size="sm"><Receipt className="h-4 w-4 mr-1" />Generate Receipts</Button>
+          <div className="flex gap-2">
+            <Select value={dateFilter} onValueChange={(value: any) => setDateFilter(value)}>
+              <SelectTrigger className="w-[130px] h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="date">Specific Date</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+              </SelectContent>
+            </Select>
+            {dateFilter === "date" && (
+              <Input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-[140px] h-8 text-xs"
+              />
+            )}
+            <Button variant="outline" size="sm"><Receipt className="h-4 w-4 mr-1" />Generate Receipts</Button>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left">
                 <th className="px-4 py-2 text-xs font-semibold text-muted-foreground">MEMBER</th>
-                <th className="px-4 py-2 text-xs font-semibold text-muted-foreground">TOTAL (YTD)</th>
-                <th className="px-4 py-2 text-xs font-semibold text-muted-foreground">MONTHS</th>
-                <th className="px-4 py-2 text-xs font-semibold text-muted-foreground">LAST PAID</th>
+                <th className="px-4 py-2 text-xs font-semibold text-muted-foreground">DATE</th>
+                <th className="px-4 py-2 text-xs font-semibold text-muted-foreground">AMOUNT</th>
               </tr>
             </thead>
             <tbody>
-              {memberTithes.map((m) => (
-                <tr key={m.name} className="border-b last:border-0 hover:bg-accent/30 transition-colors">
-                  <td className="px-4 py-2.5 font-medium">{m.name}</td>
-                  <td className="px-4 py-2.5 text-emerald-400 font-semibold">{fmt(m.total)}</td>
-                  <td className="px-4 py-2.5 text-muted-foreground">{m.months} months</td>
-                  <td className="px-4 py-2.5 text-muted-foreground">{m.lastPaid}</td>
+              {filteredTithes.length > 0 ? (
+                filteredTithes.map((t) => (
+                  <tr key={t.id} className="border-b last:border-0 hover:bg-accent/30 transition-colors">
+                    <td className="px-4 py-2.5 font-medium">{t.member}</td>
+                    <td className="px-4 py-2.5 text-muted-foreground">{t.date}</td>
+                    <td className="px-4 py-2.5 text-emerald-400 font-semibold">{fmt(t.amount)}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={3} className="px-4 py-8 text-center text-muted-foreground text-sm">
+                    No tithe records found for selected date range
+                  </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

@@ -8,124 +8,161 @@ import { MemberManagement } from "@/components/members/MemberManagement";
 import { TithesTable } from "@/components/TithesTable";
 import { SubscriptionPlans } from "@/components/SubscriptionPlans";
 import { AdminQuickActions } from "@/components/AdminQuickActions";
-import { MemberDashboard } from "@/components/MemberDashboard";
+import { initialMembers } from "@/data/members";
 
-const adminTabs = ["Overview", "Members", "Tithes", "Events", "Subscriptions"] as const;
-const memberTabs = ["Home", "Sermons", "Giving", "Events"] as const;
-
+const adminTabs = [
+  "Members",
+  "Attendance Tracking",
+  "Visitors & Follow-Up",
+] as const;
 type AdminTab = (typeof adminTabs)[number];
-type MemberTab = (typeof memberTabs)[number];
 
 const sidebarToAdminTab: Record<string, AdminTab> = {
-  members: "Members",
-  tithes: "Tithes",
-  events: "Events",
-  analytics: "Overview",
-  settings: "Subscriptions",
+  members:   "Members",
+  attendance: "Attendance Tracking",
+  visitors: "Visitors & Follow-Up",
+};
+
+const sidebarLabel: Record<string, string> = {
+  overview: "Overview",
+  members: "Member Directory",
+  departments: "Departments",
+  events: "Events & Calendar",
+  "church-records": "Church Records",
+  welfare: "Welfare & Counseling",
+  tithes: "Finance & Offering",
+  fundraising: "Projects & Fundraising",
+  "online-giving": "Online Giving",
+  communications: "Communications",
+  assets: "Asset & Inventory",
+  access: "Access Control",
+  analytics: "Reports & Analytics",
+  "multi-branch": "Multi-Branch",
+  settings: "Settings",
+};
+
+const memberManagementTabs = new Set([
+  "members",
+  "attendance",
+  "visitors",
+  "departments",
+  "events",
+  "church-records",
+  "welfare",
+  "tithes",
+  "fundraising",
+  "online-giving",
+  "communications",
+  "assets",
+  "access",
+  "analytics",
+  "multi-branch",
+]);
+
+const adminTabToSidebarTab: Record<AdminTab, string> = {
+  Members: "members",
+  "Attendance Tracking": "attendance",
+  "Visitors & Follow-Up": "visitors",
 };
 
 export default function Dashboard() {
-  const [role, setRole] = useState<"admin" | "member">("admin");
-  const [adminTab, setAdminTab] = useState<AdminTab>("Overview");
-  const [memberTab, setMemberTab] = useState<MemberTab>("Home");
-  const [sidebarTab, setSidebarTab] = useState("analytics");
+  const [adminTab, setAdminTab]   = useState<AdminTab>("Members");
+  const [sidebarTab, setSidebarTab] = useState("members");
 
   const handleSidebarChange = (id: string) => {
     setSidebarTab(id);
-    if (role === "admin") {
-      const mapped = sidebarToAdminTab[id];
-      if (mapped) setAdminTab(mapped);
+    const mapped = sidebarToAdminTab[id];
+    setAdminTab(mapped ?? "Members");
+  };
+
+  const handleQuickAction = (actionId: string) => {
+    switch (actionId) {
+      case "register-member":
+        setSidebarTab("members");
+        break;
+      case "register-visitor":
+        setSidebarTab("visitors");
+        break;
+      case "record-attendance":
+        setSidebarTab("attendance");
+        break;
+      case "record-offering":
+        setSidebarTab("tithes");
+        break;
+      case "send-broadcast":
+        setSidebarTab("communications");
+        break;
     }
   };
 
-  const tabs = role === "admin" ? adminTabs : memberTabs;
-  const activeTab = role === "admin" ? adminTab : memberTab;
-  const setActiveTab = (t: string) => {
-    if (role === "admin") setAdminTab(t as AdminTab);
-    else setMemberTab(t as MemberTab);
-  };
+  const activeLabel = sidebarLabel[sidebarTab] ?? sidebarTab;
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <AppSidebar activeTab={sidebarTab} onTabChange={handleSidebarChange} />
+      <AppSidebar
+        activeTab={sidebarTab}
+        onTabChange={handleSidebarChange}
+      />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <DashboardHeader role={role} onRoleChange={setRole} />
+        <DashboardHeader role="admin" onRoleChange={() => {}} />
 
-        {/* Tabs */}
-        <div className="border-b bg-card px-6">
-          <div className="flex gap-0">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === tab
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
+        {/* Horizontal Tabs for Member Management */}
+        {(sidebarTab === "members" || sidebarTab === "attendance" || sidebarTab === "visitors") && (
+          <div className="border-b bg-card px-6 shrink-0">
+            <div className="flex gap-0">
+              {adminTabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => handleSidebarChange(adminTabToSidebarTab[tab])}
+                  className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    adminTab === tab
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {role === "admin" ? (
+          {sidebarTab === "overview" && (
             <>
-              {adminTab === "Overview" && (
-                <>
-                  <StatCards />
-                  <AdminQuickActions />
-                  <div className="flex gap-4">
-                    <GivingChart />
-                    <FundAllocationChart />
-                  </div>
-                  <MemberManagement />
-                </>
-              )}
-              {adminTab === "Members" && <MemberManagement />}
-              {adminTab === "Tithes" && (
-                <>
-                  <StatCards />
-                  <TithesTable />
-                </>
-              )}
-              {adminTab === "Events" && (
-                <div className="card-surface p-10 text-center">
-                  <p className="text-muted-foreground text-sm">Event Calendar — Coming Soon</p>
-                </div>
-              )}
-              {adminTab === "Subscriptions" && <SubscriptionPlans />}
-            </>
-          ) : (
-            <>
-              {memberTab === "Home" && <MemberDashboard />}
-              {memberTab === "Sermons" && (
-                <div className="card-surface p-10 text-center">
-                  <p className="text-muted-foreground text-sm">Sermon Library — Coming Soon</p>
-                </div>
-              )}
-              {memberTab === "Giving" && (
-                <div className="card-surface p-10 text-center">
-                  <p className="text-muted-foreground text-sm">Giving History — Coming Soon</p>
-                </div>
-              )}
-              {memberTab === "Events" && (
-                <div className="card-surface p-10 text-center">
-                  <p className="text-muted-foreground text-sm">Event Calendar — Coming Soon</p>
-                </div>
-              )}
+              <StatCards memberCount={initialMembers.length} />
+              <AdminQuickActions onActionClick={handleQuickAction} />
+              <div className="flex gap-4">
+                <GivingChart />
+                <FundAllocationChart />
+              </div>
             </>
           )}
+
+          {sidebarTab === "settings" && <SubscriptionPlans />}
+
+          {sidebarTab !== "overview" &&
+            sidebarTab !== "settings" &&
+            memberManagementTabs.has(sidebarTab) && (
+            <MemberManagement
+              activeTab={sidebarTab as never}
+              onTabChange={(tab) => handleSidebarChange(tab as string)}
+            />
+          )}
+
+          {sidebarTab !== "overview" &&
+            sidebarTab !== "settings" &&
+            !memberManagementTabs.has(sidebarTab) && (
+              <div className="card-surface p-10 text-center">
+                <p className="text-muted-foreground text-sm">{activeLabel} — Coming Soon</p>
+              </div>
+            )}
         </div>
       </div>
 
-      {role === "admin" && (
-        <MinistryAlerts onNavigate={(tab) => setAdminTab(tab as AdminTab)} />
-      )}
+      <MinistryAlerts onNavigate={(tab) => setAdminTab(tab as AdminTab)} />
     </div>
   );
 }

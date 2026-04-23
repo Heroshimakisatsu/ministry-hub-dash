@@ -1,4 +1,5 @@
 import { Search, Download, Filter, BookOpen } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 const verses = [
   "\"And my God will meet all your needs according to the riches of his glory in Christ Jesus.\" — Philippians 4:19",
@@ -50,30 +51,6 @@ export function DashboardHeader({ role, onRoleChange }: DashboardHeaderProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Role toggle */}
-          <div className="flex items-center rounded-lg border bg-background p-0.5">
-            <button
-              onClick={() => onRoleChange("admin")}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                role === "admin"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Admin
-            </button>
-            <button
-              onClick={() => onRoleChange("member")}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                role === "member"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Member
-            </button>
-          </div>
-
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
@@ -90,6 +67,8 @@ export function DashboardHeader({ role, onRoleChange }: DashboardHeaderProps) {
             <Download className="h-4 w-4" />
             Export
           </button>
+          <div className="h-9 w-px bg-border mx-1" />
+          <ThemeToggle className="h-9 w-9 border rounded-lg" />
         </div>
       </div>
     </header>
