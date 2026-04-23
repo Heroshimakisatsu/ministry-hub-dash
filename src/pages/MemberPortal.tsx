@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { User, Calendar, Church, Users, LogOut, Bell, Settings, Heart, BookOpen, Camera, MapPin, Phone as PhoneIcon, Mail, UserCircle, CheckCircle, Receipt, Building2, Globe, HandCoins, Megaphone, Calendar as CalendarIcon, Clock, MapPin as MapPinIcon, Play, Download, Video, Music, FileText, MessageCircle, QrCode, Users as UsersIcon, UserPlus, Phone, CalendarDays, FileCheck, CalendarCheck, Bookmark, HandHeart, Award, AlertTriangle, ShoppingBag, Building, MessageSquare, Send, Info, Lock, X, TrendingUp, Plus, ArrowRight } from "lucide-react";
+import { User, Calendar, Church, Users, LogOut, Bell, Settings, Heart, BookOpen, Camera, MapPin, Phone as PhoneIcon, Mail, UserCircle, CheckCircle, Receipt, Building2, Globe, HandCoins, Megaphone, Calendar as CalendarIcon, Clock, MapPin as MapPinIcon, Play, Download, Video, Music, FileText, MessageCircle, QrCode, Users as UsersIcon, UserPlus, Phone, CalendarDays, FileCheck, CalendarCheck, Bookmark, HandHeart, Award, AlertTriangle, ShoppingBag, Building, MessageSquare, Send, Info, Lock, X, TrendingUp, Plus, ArrowRight, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +15,7 @@ export default function MemberPortal() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState("");
@@ -393,42 +394,69 @@ export default function MemberPortal() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-background border-b border-border/30 sticky top-0 z-50">
-        <div className="max-w-screen-2xl mx-auto px-8 py-6 flex items-center justify-between">
+        <div className="max-w-screen-2xl mx-auto px-4 md:px-8 py-4 md:py-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center hidden sm:flex">
               <Church className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-2xl font-black tracking-tighter uppercase">FAITHFLOW</span>
-            <span className="text-2xl font-thin text-muted-foreground">/</span>
-            <span className="text-sm font-bold tracking-widest text-muted-foreground uppercase ml-1">PORTAL</span>
+            <span className="text-xl md:text-2xl font-black tracking-tighter uppercase">FAITHFLOW</span>
+            <span className="text-xl md:text-2xl font-thin text-muted-foreground hidden sm:inline">/</span>
+            <span className="text-sm font-bold tracking-widest text-muted-foreground uppercase ml-1 hidden sm:inline">PORTAL</span>
           </div>
 
-          <div className="flex-1 flex justify-center">
+          <div className="flex-1 flex justify-end md:justify-center pr-2 md:pr-0">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setActiveTab("chat")}
+              onClick={() => { setActiveTab("chat"); setMobileMenuOpen(false); }}
               className="rounded-full font-medium"
             >
-              <Send className="h-4 w-4 mr-2" /> Chat
+              <Send className="h-4 w-4 md:mr-2" /> <span className="hidden md:inline">Chat</span>
             </Button>
           </div>
 
-          <div className="flex items-center gap-4">
-            <ThemeToggle className="rounded-full" />
-            <Button variant="ghost" size="icon" className="rounded-full">
+          <div className="flex items-center gap-2 md:gap-4">
+            <ThemeToggle className="rounded-full hidden sm:flex" />
+            <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex">
               <Bell className="h-5 w-5" />
             </Button>
-            <Button variant="outline" size="sm" onClick={handleLogout} className="rounded-full border-2">
+            <Button variant="outline" size="sm" onClick={handleLogout} className="rounded-full border-2 hidden md:flex">
               <LogOut className="h-4 w-4 mr-2" /> Logout
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="rounded-full md:hidden">
+              <LogOut className="h-5 w-5 text-destructive" />
             </Button>
           </div>
         </div>
       </header>
 
-      <div className="flex gap-6 h-[calc(100vh-80px)]">
+      <div className="flex flex-col md:flex-row gap-0 md:gap-6 h-[calc(100vh-73px)] md:h-[calc(100vh-80px)] relative overflow-hidden">
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+
         {/* Sidebar Navigation */}
-        <aside className="w-64 h-[calc(100vh-80px)] flex flex-col bg-card border-r shrink-0 sticky top-0">
+        <aside className={`${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        } md:translate-x-0 transition-transform duration-300 ease-in-out fixed md:relative z-50 md:z-0 w-64 h-full md:h-[calc(100vh-80px)] flex flex-col bg-card border-r shrink-0 top-0 left-0`}>
+          <div className="flex items-center justify-between p-4 md:hidden border-b">
+            <span className="font-bold">Menu</span>
+            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
           {/* Nav */}
           <nav className="flex-1 px-3 space-y-4 mt-2 overflow-y-auto overflow-x-hidden">
               <div>
@@ -478,7 +506,7 @@ export default function MemberPortal() {
                     return (
                       <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
+                        onClick={() => { setActiveTab(tab.id); setMobileMenuOpen(false); }}
                         className={`${isActive ? "sidebar-nav-item-active" : "sidebar-nav-item"} w-full`}
                       >
                         <Icon className="h-4 w-4 shrink-0" />
@@ -505,7 +533,7 @@ export default function MemberPortal() {
                     return (
                       <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
+                        onClick={() => { setActiveTab(tab.id); setMobileMenuOpen(false); }}
                         className={`${isActive ? "sidebar-nav-item-active" : "sidebar-nav-item"} w-full`}
                       >
                         <Icon className="h-4 w-4 shrink-0" />
@@ -532,7 +560,7 @@ export default function MemberPortal() {
                     return (
                       <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
+                        onClick={() => { setActiveTab(tab.id); setMobileMenuOpen(false); }}
                         className={`${isActive ? "sidebar-nav-item-active" : "sidebar-nav-item"} w-full`}
                       >
                         <Icon className="h-4 w-4 shrink-0" />
@@ -559,7 +587,7 @@ export default function MemberPortal() {
                     return (
                       <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
+                        onClick={() => { setActiveTab(tab.id); setMobileMenuOpen(false); }}
                         className={`${isActive ? "sidebar-nav-item-active" : "sidebar-nav-item"} w-full`}
                       >
                         <Icon className="h-4 w-4 shrink-0" />
@@ -587,7 +615,7 @@ export default function MemberPortal() {
           </aside>
 
           {/* Main Content */}
-          <div className="flex-1 card-surface p-6 min-h-[500px] flex flex-col overflow-y-auto">
+          <div className="flex-1 w-full bg-background md:bg-card/30 md:rounded-[2.5rem] p-4 md:p-6 min-h-[500px] flex flex-col overflow-y-auto">
             {/* Content */}
         {activeTab === "announcements" && (
           <div className="space-y-8">
